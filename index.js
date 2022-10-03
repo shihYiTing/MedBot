@@ -7,7 +7,7 @@
 // [MQTT]
 const mqtt = require('mqtt')
 // [Dialogflow]
-const dialogflow = require('@google-cloud/dialogflow');
+//const dialogflow = require('@google-cloud/dialogflow');
 const uuid = require('uuid');
 // [MongoDB]
 const mongo = require("mongodb").MongoClient
@@ -52,18 +52,25 @@ mq_client.on('error', (error) => {
 mq_client.on('message', (topic, payload) => {
     console.log(`[mq_client] Received message: {${topic}: ${payload.toString()}}`)
 
-    if (topic == "dialogflow_input") {
+    collection.insertOne({ name: "123" }, (err, result) => {
+        if (err) {
+            console.error(err)
+            return
+        }   
 
+        console.log(result)
+    })
+
+    if (topic == "dialogflow_input") {
+        var dialogflow_response = executeQueries(queries = payload.toString())
+
+        console.log('Detected intent');
+        var dialogflow_result = dialogflow_response[0].queryResult;
+        console.log(`  Query: ${dialogflow_result.queryText}`);
+        console.log(`  Response: ${dialogflow_result.fulfillmentText}`);
     }
 
-    // collection.insertOne({ name: "123" }, (err, result) => {
-    //     if (err) {
-    //         console.error(err)
-    //         return
-    //     }
-
-    //     console.log(result)
-    // })
+  
 
     mq_client.publish("dialogflow_output", dialogflow_result.fulfillmentText)
 
@@ -100,7 +107,7 @@ mq_client.on('message', (topic, payload) => {
 
 // [Dialogflow]
 /**
- * @param {string} query_string The string
+ * @param {string} queries The string
  * @return {} 
  */
 // async function dialogflow_DetectIntent(query_string) {
@@ -140,6 +147,8 @@ async function executeQueries(queries) {
     let context;
     let intentResponse;
     const sessionId = uuid.v4();
+    process.env.GOOGLE_APPLICATION_CREDENTIALS = "./test2-aaly-6dc1de910ef4.json";
+
 
     for (const query of queries) {
         try {
@@ -162,3 +171,5 @@ async function executeQueries(queries) {
         }
     }
 }
+
+
